@@ -1,0 +1,6 @@
+Coloca aquí las fichas técnicas en PDF con estos nombres exactos:
+  alcohol-isopropilico.pdf
+  alcohol-etilico.pdf
+  solvente-dielectrico.pdf
+(Puedes cambiar nombres y rutas en el CATALOGO de index.html, campo "ficha").
+Mientras no existan, el botón "Ficha técnica" ofrece solicitarla por WhatsApp.
