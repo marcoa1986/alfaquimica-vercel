@@ -1695,6 +1695,45 @@
           scroll-behavior: auto !important;
         }
       }
+    
+      /* Aviso de privacidad y autorizaciones del cotizador */
+      .privacy-box {
+        margin-top: 18px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--soft);
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .privacy-box a {
+        color: var(--blue);
+        font-weight: 700;
+        text-decoration: underline;
+      }
+      .privacy-box label {
+        display: flex;
+        align-items: flex-start;
+        gap: 9px;
+        margin-top: 12px;
+        color: var(--ink);
+        cursor: pointer;
+      }
+      .privacy-box input[type="checkbox"] {
+        width: 17px;
+        height: 17px;
+        flex: 0 0 17px;
+        margin-top: 2px;
+        accent-color: var(--blue);
+      }
+      .privacy-error {
+        color: var(--danger);
+        font-size: 12px;
+        margin-top: 8px;
+        display: none;
+      }
+
     </style>
   </head>
   <body>
@@ -2938,7 +2977,15 @@
       <div class="f"><span class="lbl">¿Cuándo lo necesitas?</span><label class="check"><input type="checkbox" data-k="asap" ${c.asap ? "checked" : ""}> Lo antes posible</label>${c.asap ? "" : `<input id="cFecha" data-k="fecha" type="date" min="${min}" value="${esc(c.fecha)}" aria-label="Fecha requerida"><span class="err" id="e-fecha"></span>`}</div>
       <div class="f full"><span class="lbl">Documentación que necesitas</span><div class="checks"><label class="check"><input type="checkbox" data-k="docFicha" ${c.docFicha ? "checked" : ""}> Ficha técnica</label><label class="check"><input type="checkbox" data-k="docSds" ${c.docSds ? "checked" : ""}> Hoja de seguridad (SDS)</label></div></div>
       <div class="f full"><label for="cNotas">Notas <em>(opcional)</em></label><textarea id="cNotas" data-k="notas" rows="3" maxlength="500" placeholder="Horario de recepción, uso previsto, requisitos…">${esc(c.notas)}</textarea></div>
-    </div></div>`;
+    </div>
+    <div class="privacy-box" id="privacyBox">
+      <p>ALFAQUIMICA utilizará los datos proporcionados para atender esta solicitud de cotización y dar seguimiento comercial. Consulta quién es el responsable, las finalidades y tus derechos en nuestro aviso integral.</p>
+      <p><a href="/aviso-privacidad.html" target="_blank" rel="noopener">Leer aviso de privacidad integral</a></p>
+      <label><input type="checkbox" id="privacyAccepted" required> He leído el aviso de privacidad y conozco el tratamiento de mis datos. <strong>(Obligatorio)</strong></label>
+      <label><input type="checkbox" id="marketingConsent"> Acepto recibir promociones e información comercial. (Opcional)</label>
+      <div class="privacy-error" id="privacyError" role="alert">Para enviar tu solicitud, confirma que has leído el aviso de privacidad.</div>
+    </div>
+    </div>`;
           $("#sheetFoot").innerHTML = `
     <button class="btn btn-wa btn-lg btn-block" type="button" data-send="wa" ${has ? "" : "disabled"}>${ico("chat")}Enviar por WhatsApp</button>
     <div class="two">
@@ -3151,6 +3198,40 @@
             .join("\n");
         }
 
+        /* Registro de prospectos en la API privada de Vercel */
+        async function saveLead(q) {
+          const c = q.c;
+          const products = q.t.lines.map((line) =>
+            `${line.p.nombre} (${line.r.label})`
+          ).join("; ");
+          const quantities = q.t.lines.map((line) =>
+            `${line.qty} ${line.uni}`
+          ).join("; ");
+
+          const response = await fetch("/api/leads", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              nombre: c.contacto,
+              empresa: c.empresa,
+              correo: c.correo,
+              telefono: c.telefono,
+              producto: products,
+              cantidad: quantities,
+              codigo_postal: c.cp,
+              privacy_accepted: true,
+              marketing_consent:
+                document.getElementById("marketingConsent")?.checked === true
+            })
+          });
+
+          const result = await response.json().catch(() => ({}));
+          if (!response.ok || result.ok !== true) {
+            throw new Error(result.message || "No fue posible registrar tu solicitud.");
+          }
+          return result;
+        }
+
         /* Envíos */
         const markSent = (txt) => {
           state.enviado = txt;
@@ -3171,7 +3252,31 @@
           if (!b) return;
           const ch = b.dataset.send;
           if (!validate(ch)) return;
+
+          const privacyAccepted = document.getElementById("privacyAccepted");
+          const privacyError = document.getElementById("privacyError");
+          if (!privacyAccepted || !privacyAccepted.checked) {
+            if (privacyError) privacyError.style.display = "block";
+            privacyAccepted?.focus();
+            return;
+          }
+          if (privacyError) privacyError.style.display = "none";
+
           const q = buildQuote();
+          setLoading(b, true);
+          try {
+            await saveLead(q);
+          } catch (err) {
+            console.error("[Lead]", err);
+            toast(
+              "No pudimos registrar tu solicitud. Intenta nuevamente antes de enviarla.",
+              { type: "warn" },
+            );
+            setLoading(b, false);
+            return;
+          }
+          setLoading(b, false);
+
           if (ch === "wa") {
             window.open(waUrl(whatsappMsg(q)), "_blank", "noopener");
             markSent(
