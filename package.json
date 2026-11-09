@@ -1,0 +1,24 @@
+{
+  "name": "alfaquimica-vercel",
+  "version": "1.0.0",
+  "description": "Sitio estático (HTML + JS): **sin base de datos, sin compilar**. Todo se edita en `index.html`.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcoa1986/alfaquimica-vercel.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marcoa1986/alfaquimica-vercel/issues"
+  },
+  "homepage": "https://github.com/marcoa1986/alfaquimica-vercel#readme",
+  "type": "module",
+  "dependencies": {
+    "@neondatabase/serverless": "^1.2.0"
+  }
+}
