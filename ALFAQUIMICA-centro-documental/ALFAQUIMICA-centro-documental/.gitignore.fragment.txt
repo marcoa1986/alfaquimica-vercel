@@ -1,0 +1,6 @@
+Agrega estas líneas al .gitignore de la raíz (si aún no existen):
+studio/node_modules/
+studio/dist/
+studio/.env
+studio/.env.*
+!studio/.env.example

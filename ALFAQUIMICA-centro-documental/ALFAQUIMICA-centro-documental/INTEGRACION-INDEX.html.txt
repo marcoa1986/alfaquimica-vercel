@@ -1,0 +1,48 @@
+INTEGRACIÓN EN index.html
+
+1) Dentro de <head>, agrega:
+<link rel="stylesheet" href="/assets/documentos.css">
+
+2) En el lugar donde quieras mostrar el centro documental (antes del footer, por ejemplo), agrega:
+
+<section id="centro-documental" aria-labelledby="aq-doc-title">
+  <header class="aq-doc-heading">
+    <div class="aq-doc-eyebrow">ALFA QUÍMICA · Recursos técnicos</div>
+    <h2 id="aq-doc-title">Centro de documentación</h2>
+    <p class="aq-doc-intro">Consulta fichas técnicas, hojas de seguridad, guías y documentos de nuestros productos.</p>
+  </header>
+
+  <div class="aq-doc-controls">
+    <input id="aq-doc-search" type="search" placeholder="Buscar producto o documento..." aria-label="Buscar documentos">
+    <select id="aq-doc-category" aria-label="Filtrar por categoría">
+      <option value="">Todas las categorías</option>
+      <option value="ficha-tecnica">Fichas técnicas</option>
+      <option value="hoja-seguridad">Hojas de seguridad</option>
+      <option value="hoja-ayuda">Hojas de ayuda</option>
+      <option value="manual">Manuales</option>
+    </select>
+  </div>
+
+  <p id="aq-doc-count" class="aq-doc-count" aria-live="polite"></p>
+  <p id="aq-doc-status" class="aq-doc-status" aria-live="polite">Cargando documentos...</p>
+  <div id="aq-doc-list" class="aq-doc-grid"></div>
+
+  <div id="aq-doc-modal" class="aq-doc-modal" role="dialog" aria-modal="true" aria-labelledby="aq-doc-modal-title" hidden>
+    <div class="aq-doc-dialog">
+      <div class="aq-doc-modal-head">
+        <h3 id="aq-doc-modal-title">Vista previa</h3>
+        <div class="aq-doc-modal-tools">
+          <select id="aq-doc-version" aria-label="Seleccionar versión"></select>
+          <a id="aq-doc-download" class="aq-doc-button aq-doc-primary" href="#" target="_blank" rel="noopener noreferrer" download>Descargar</a>
+          <button id="aq-doc-close" class="aq-doc-close" type="button" aria-label="Cerrar">Cerrar ✕</button>
+        </div>
+      </div>
+      <iframe id="aq-doc-frame" class="aq-doc-frame" title="Vista previa del PDF" src="about:blank"></iframe>
+    </div>
+  </div>
+</section>
+
+3) Antes de </body>, agrega:
+<script src="/assets/documentos.js" defer></script>
+
+4) No reemplaces tu index.html completo. Inserta estos fragmentos en el archivo actual para conservar el diseño, formulario y conexión con Neon.
